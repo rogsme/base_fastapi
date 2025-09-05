@@ -1,0 +1,129 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    volumes:
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    env_file:
+      - .env
+    environment:
+      PYTHONBREAKPOINT: remote_pdb.set_trace
+      REMOTE_PDB_HOST: 0.0.0.0
+      REMOTE_PDB_PORT: 4000
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://base:base123@postgres:5432/base
+    depends_on:
+      - redis
+      - postgres
+    ports:
+      - 8000:8000
+      - 4000:4000
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: base
+      POSTGRES_USER: base
+      POSTGRES_PASSWORD: base123
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U base -d base"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://base:base123@postgres:5432/base
+      PYTHONBREAKPOINT: remote_pdb.set_trace
+      REMOTE_PDB_HOST: 0.0.0.0
+      REMOTE_PDB_PORT: 4001
+      CELERY_WORKER: true
+    depends_on:
+      - redis
+      - postgres
+      - api
+    ports:
+      - 4001:4001
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://base:base123@postgres:5432/base
+      CELERY_BEAT: true
+    depends_on:
+      - redis
+      - postgres
+      - api
+
+  celery-flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://base:base123@postgres:5432/base
+      CELERY_FLOWER: true
+    depends_on:
+      - redis
+      - postgres
+      - api
+    ports:
+      - 5555:5555
+
+  # These images are just for development purposes
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9999:8080
+
+  adminer:
+    image: adminer
+    ports:
+      - 9998:8080
+
+
+volumes:
+  postgres_data:
