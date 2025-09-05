@@ -1,7 +1,7 @@
 # FastAPI Base Project
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a1c42b67-7f78-4918-ab98-4c986fb33daa" alt="base_fastapi"/>
+  <img src="https://git.rogs.me/rogs/base_fastapi/raw/branch/master/logo.png" alt="base_fastapi"/>
 </p>
 
 A production-ready FastAPI template with PostgreSQL, Celery, Redis, and modern Python tooling. This template provides a solid foundation for building scalable web APIs with background task processing.
