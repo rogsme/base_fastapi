@@ -7,7 +7,12 @@ dev-docker:
 docker-build:
 	docker compose build
 base-dev:
-	docker compose up postgres redis dozzle adminer
+	docker compose up postgres redis dozzle adminer -d
+
+stop-base-dev:
+	docker compose stop postgres redis dozzle adminer
+
+full-dev: base-dev dev
 
 # ====== CODE QUALITY ======
 .PHONY: check lint-format type-check
@@ -17,6 +22,24 @@ lint-format:
 type-check:
 	uv run mypy src
 check: lint-format type-check
+
+# ====== TESTING ======
+.PHONY: test test-verbose test-coverage test-watch test-specific
+test:
+	ENVIRONMENT=testing uv run pytest
+
+test-verbose:
+	ENVIRONMENT=testing uv run pytest -v
+
+test-coverage:
+	ENVIRONMENT=testing uv run pytest --cov=src --cov-report=html --cov-report=term-missing
+
+test-specific:
+	@if [ -z "$(path)" ]; then \
+		echo "Usage: make test-specific path='path/to/test'"; \
+		exit 1; \
+	fi
+	ENVIRONMENT=testing uv run pytest "$(path)" -v
 
 # ====== DATABASE ======
 .PHONY: db-generate db-upgrade db-downgrade db-current db-history db-reset
@@ -50,7 +73,7 @@ db-reset:
 	PYTHONPATH=src/ uv run alembic upgrade head
 
 db-shell:
-	docker compose exec postgres psql -U base -d base
+	docker compose exec postgres psql -U satsbell -d satsbell
 
 # ====== UTILITIES ======
 .PHONY: install clean logs help
@@ -67,7 +90,10 @@ help:
 	@echo "  Development:"
 	@echo "    dev          - Run API locally"
 	@echo "    dev-docker   - Run full stack with Docker"
+	@echo "    docker-build - Build containers"
 	@echo "    base-dev     - Run only supporting services (DB, Redis, etc.)"
+	@echo "    stop-base-dev - Stop supporting services"
+	@echo "    full-dev     - Run supporting services and API locally"
 	@echo ""
 	@echo "  Code Quality:"
 	@echo "    check        - Run all code quality checks"
@@ -83,15 +109,13 @@ help:
 	@echo "    db-reset                 - Reset database (DESTRUCTIVE)"
 	@echo "    db-shell                 - Open PostgreSQL shell"
 	@echo ""
-	@echo "  Docker:"
-	@echo "    docker-build    - Build containers"
-	@echo "    docker-logs     - Follow container logs"
-	@echo "    docker-down     - Stop containers"
-	@echo "    docker-clean    - Clean containers and volumes"
-	@echo "    docker-restart  - Restart containers"
+	@echo "  Testing:"
+	@echo "    test         - Run all tests"
+	@echo "    test-verbose - Run all tests with verbose output"
+	@echo "    test-coverage - Run tests with coverage report"
+	@echo "    test-specific path='path/to/test' - Run specific test"
 	@echo ""
 	@echo "  Utilities:"
 	@echo "    install - Install dependencies"
 	@echo "    clean   - Clean Python cache files"
-	@echo "    logs    - Follow API logs"
 	@echo "    help    - Show this help"

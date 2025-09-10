@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from db import get_db
 from services.healthcheck import HealthService
 
 router = APIRouter(
@@ -17,10 +19,13 @@ router = APIRouter(
         200: {"description": "API is healthy"},
     },
 )
-async def health_check() -> dict:
+async def health_check(db: AsyncSession = Depends(get_db)) -> dict:
     """Check API health status.
+
+    Args:
+        db: Database session dependency
 
     Returns:
         Dictionary containing health status information
     """
-    return await HealthService.check_health()
+    return await HealthService.check_health(db)

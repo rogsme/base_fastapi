@@ -21,10 +21,37 @@ dependencies = [
 dev = [
     "pre-commit>=4.3.0",
     "pylsp-mypy>=0.7.0",
+    "pytest-clarity>=1.0.1",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.0",
+    "pytest-randomly>=4.0.0",
+    "pytest-sugar>=1.1.1",
+    "pytest-xdist>=3.8.0",
     "python-lsp-ruff>=2.2.2",
     "python-lsp-server>=1.13.1",
     "remote-pdb>=2.1.0",
     "ruff>=0.12.12",
+    "httpx>=0.28.1",
+    "aiosqlite>=0.21.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
+env = { ENVIRONMENT = "test" }
+addopts = "--diff-width=88 --dist=loadscope --durations=5 --disable-warnings --cov=src --cov-report=term-missing --cov-report=html --cov-report=xml --cov-report=json"
+
+[tool.coverage.run]
+omit = [
+    "src/db.py",
+    "src/main.py",
+    "src/tests/test_db.py",
+    "src/migrations/*"
 ]
 
 [tool.mypy]
@@ -103,6 +130,9 @@ fixable = ["ALL"]
 unfixable = []
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
 
 [tool.ruff.format]
 quote-style = "double"
