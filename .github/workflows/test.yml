@@ -12,6 +12,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
 
+    env:
+      ENVIRONMENT: "testing"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,22 +24,20 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          version: "latest"
-
       - name: Install dependencies using uv
         run: |
+          python -m pip install --upgrade pip
+          pip install uv
           uv sync --frozen --no-install-project
 
       - name: Run pytest
         run: uv run pytest -v --cov-fail-under=80
 
       - name: Upload Coverage Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-reports
           path: |
-            htmlcov/
+            htmlcov/**
             coverage.xml
+          retention-days: 7
