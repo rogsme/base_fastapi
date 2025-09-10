@@ -65,23 +65,3 @@ async def cleanup_test_db() -> AsyncGenerator[None, None]:
     """Clean up test database after all tests."""
     yield
     await close_test_db()
-
-
-@pytest.fixture(scope="function")
-def sample_wallet_data() -> dict:
-    """Provide sample wallet data for testing."""
-    return {
-        "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-        "email": "test@example.com",
-        "label": "Test Wallet",
-    }
-
-
-@pytest.fixture(scope="function")
-def sample_wallet_data_telegram() -> dict:
-    """Provide sample wallet data with Telegram for testing."""
-    return {
-        "address": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
-        "telegram_id": "123456789",
-        "label": "Telegram Wallet",
-    }
