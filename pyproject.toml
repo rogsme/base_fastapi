@@ -50,6 +50,7 @@ addopts = "--diff-width=88 --dist=loadscope --durations=5 --disable-warnings --c
 omit = [
     "src/db.py",
     "src/main.py",
+    "src/tests/conftest.py",
     "src/tests/test_db.py",
     "src/migrations/*"
 ]
