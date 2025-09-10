@@ -17,6 +17,7 @@ A production-ready FastAPI template with PostgreSQL, Celery, Redis, and modern P
 - **Modern Tooling** - UV, Ruff, MyPy, Pre-commit hooks
 - **Health Checks** - Built-in monitoring endpoints
 - **Type Safety** - Full type hints with MyPy validation
+- **Comprehensive Testing** - Pytest with async support and fixtures
 
 ## 📋 Prerequisites
 
@@ -24,7 +25,7 @@ A production-ready FastAPI template with PostgreSQL, Celery, Redis, and modern P
 - Python 3.13+ (for local development)
 - UV package manager (optional, for local development)
 
-## 🏗️ Converting to Your Project
+## 🗃️ Converting to Your Project
 
 This is a template project with placeholder names. Follow these steps to convert it to your specific project:
 
@@ -192,6 +193,37 @@ make db-reset
 make db-shell
 ```
 
+## 🧪 Testing
+
+The project includes a comprehensive testing setup with pytest, async support, and proper database isolation.
+
+### Quick Start
+
+```bash
+# Run all tests
+make test
+
+# Run tests with coverage
+make test-coverage
+
+# Run specific test
+make test-specific path="tests/routes/test_health.py"
+```
+
+### Documentation
+
+For detailed testing documentation, examples, and best practices, see:
+
+**[📖 Testing Documentation](src/tests/README.md)**
+
+The testing documentation covers:
+- Complete testing setup and configuration
+- Writing tests for APIs, services, and models
+- Using fixtures and mocking
+- Async testing patterns
+- Coverage reporting
+- Testing best practices and conventions
+
 ## 🔧 Development Commands
 
 ### Code Quality
@@ -205,6 +237,22 @@ make lint-format
 
 # Type checking
 make type-check
+```
+
+### Testing
+
+```bash
+# Run all tests
+make test
+
+# Run tests with verbose output
+make test-verbose
+
+# Run tests with coverage report
+make test-coverage
+
+# Run specific test
+make test-specific path="path/to/test"
 ```
 
 ### Utilities
@@ -241,6 +289,11 @@ make help
 │   ├── scheduler/                # Celery configuration
 │   │   ├── __init__.py
 │   │   └── worker.py            # Celery worker setup
+│   ├── tests/                    # Test suite (see tests/README.md)
+│   │   ├── conftest.py          # Pytest configuration
+│   │   ├── test_db.py           # Test database setup
+│   │   ├── routes/              # API endpoint tests
+│   │   └── services/            # Service layer tests
 │   └── start_celery.py          # Celery startup script
 ├── compose.yml                   # Docker Compose configuration
 ├── Dockerfile                    # Application container
@@ -281,6 +334,8 @@ make help
    make db-upgrade
    ```
 
+4. Add tests (see [Testing Documentation](src/tests/README.md))
+
 ### Adding a New Route
 
 1. Create route file in `src/routes/`:
@@ -304,6 +359,8 @@ make help
    router.include_router(users_router)
    ```
 
+3. Add tests (see [Testing Documentation](src/tests/README.md))
+
 ### Adding a Celery Task
 
 1. Add task in `src/scheduler/worker.py`:
@@ -321,6 +378,8 @@ make help
    # Async task
    send_email.delay("user@example.com", "Hello", "Welcome!")
    ```
+
+3. Add tests (see [Testing Documentation](src/tests/README.md))
 
 ## 🐳 Production Deployment
 
@@ -353,7 +412,7 @@ docker run -p 8000:8000 \
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests and quality checks: `make check`
+4. Run tests (`make test`) and quality checks (`make check`)
 5. Submit a pull request
 
 ## 📄 License
@@ -367,3 +426,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Celery Documentation](https://docs.celeryproject.org/)
 - [Alembic Documentation](https://alembic.sqlalchemy.org/)
 - [UV Documentation](https://docs.astral.sh/uv/)
+- [Testing Documentation](src/tests/README.md) - **Detailed testing guide**
